@@ -1,0 +1,6 @@
+# Folder
+node_modules/
+
+# Files
+.env
+.env.*
