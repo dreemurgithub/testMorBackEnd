@@ -1,8 +1,7 @@
-import dotenv from 'dotenv'
-dotenv.config()
+require('dotenv'). dotenv.config()
 // if(process.env.PostgressqlURI) mongoose.connect(process.env.PostgressqlURI)
 
-import postgres from "postgres";
+const postgres = require("postgres");
 
 const sql = postgres({
   /* options */
