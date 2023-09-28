@@ -7,3 +7,7 @@
  - Write Raw SQL Query and use Typeorm, not 2 database
  - Dockerize it with docker-compose and dockerfile(2+ container need both!)
  - Chose Typeorm
+
+ ## ORM vs SQL query
+ - [TypeOrm](https://typeorm.io/)
+ - [SQL query - Postgres NPM](https://www.npmjs.com/package/pg)
