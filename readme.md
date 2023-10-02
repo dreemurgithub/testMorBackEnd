@@ -10,4 +10,5 @@
 
  ## ORM vs SQL query
  - [TypeOrm](https://typeorm.io/)
+ - [Query builder](https://typeorm.io/select-query-builder)
  - [SQL query - Postgres NPM](https://www.npmjs.com/package/pg)
