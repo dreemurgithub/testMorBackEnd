@@ -1,52 +1,63 @@
 require("dotenv").config();
-// if(process.env.PostgressqlURI) mongoose.connect(process.env.PostgressqlURI)
 
-const { Client } = require("pg");
-const client = new Client({
+const isLocalhost = process.env.ENVIROMENT === "DEV";
+
+// if(process.env.PostgressqlURI) mongoose.connect(process.env.PostgressqlURI)
+// somehow client work, not pool
+const { Pool } = require("pg");
+
+const pool = new Pool({
   port: process.env.POSTGRES_PORT, // Postgres server port[s]
   database: process.env.POSTGRES_DB, // Name of database to connect to
   user: process.env.POSTGRES_USER, // Username of database user
   password: process.env.POSTGRES_PASSWORD, // Password of database user
-  host: process.env.POSTGRES_HOST
+  host: isLocalhost ? process.env.POSTGRES_LOCAL : process.env.POSTGRES_HOST,
 });
-const sqlConnect = async () => {
-  // client.connect()
-  //   .then(() => {
-  //     console.log("Connected to PostgreSQL");
-  //   })
-  //   .catch((err) => {
-  //     console.error("Error connecting XXX to PostgreSQL:", err);
-  //   });
 
+const connect = async () => {
   await client.connect();
+  const query = `SELECT EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+    AND tablename = 'users'
+  );
+  `;
+  const tableExist = await client.query(query);
 
-  const res = await client.query("SELECT NOW();");
-  console.log(res)
+  // if (tableExist.rows[0].exists) {
+
+  //   const insertTest = `INSERT INTO users (name, email, password)
+  //   VALUES ('John Doe', 'john@gmail.com', '1234');
+  //   `;
+  //   console.log('old table')
+
+  //   await client.query(insertTest);
+  //   const result = await client.query(`select * from users;`);
+  //   const a = 0;
+  //   await client.end();
+  // } else {
+  //   const createTableQuery = `CREATE TABLE users (id SERIAL PRIMARY KEY,name VARCHAR(50), email VARCHAR(100),password VARCHAR(100));`;
+  //   await client.query(createTableQuery);
+  //   const insertTest = `INSERT INTO users (name, email, password)
+  //   VALUES ('John Doe', 'john@gmail.com', '1234');
+  //   `;
+  //   await client.query(insertTest);
+  //   const result = await client.query(`select * from users;`);
+  //   const a = 0;
+  //   console.log('new table')
+  //   await client.end();
+  // }
+
+  const a = 0;
+
   await client.end();
 };
-// async function getUsersOver(age) {
-//   const users = await sql`
-//       select
-//         name,
-//         age
-//       from users
-//       where age > ${age}
-//     `;
-//   // users = Result [{ name: "Walter", age: 80 }, { name: 'Murray', age: 68 }, ...]
-//   return users;
-// }
 
-// async function insertUser({ name, age }) {
-//   const users = await sql`
-//       insert into users
-//         (name, age)
-//       values
-//         (${name}, ${age})
-//       returning name, age
-//     `;
-//   // users = Result [{ name: "Murray", age: 68 }]
-//   return users;
-// }
+const AllUser = async () => {
+  const result = await client.query(`select * from users;`);
+};
 
-module.exports = { client, sqlConnect };
-// export { insertUser, getUsersOver };
+const createTable = async () => {};
+
+module.exports = { connect, pool, AllUser };

@@ -1,52 +1,44 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-
+const { connect, AllUser, pool } = require("./models/postgresJs/index");
 app.use(express.json());
 
-const { Pool,Client } = require("pg");
-const client = new Client({
-  port: process.env.POSTGRES_PORT, // Postgres server port[s]
-  database: process.env.POSTGRES_DB, // Name of database to connect to
-  user: process.env.POSTGRES_USER, // Username of database user
-  password: process.env.POSTGRES_PASSWORD, // Password of database user
-  host: process.env.POSTGRES_HOST,
-});
-async function connect() {
-  try {
-    await client.connect();
-    console.log('Connected to PostgreSQL');
+app.listen(process.env.Port, async () => {
+  // await connect()
+  const client = await pool.connect()
+  const result = await pool.query(`select * from users;`);
+  console.log(result.rows)
+  client.release()
 
-    // Perform your database operations here
-
-    await client.end();
-    console.log('Connection closed');
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
-}
-
-
-
-// const pool = new Pool({
-//   port: process.env.POSTGRES_PORT, // Postgres server port[s]
-//   database: process.env.POSTGRES_DB, // Name of database to connect to
-//   user: process.env.POSTGRES_USER, // Username of database user
-//   password: process.env.POSTGRES_PASSWORD, // Password of database user
-//   host: process.env.POSTGRES_HOST,
-// });
-
-
-
-
-app.listen(process.env.Port, async() => {
-  // console.log("Connection infors:", pool.options);
-  // console.log("Connection Client:", client.options);
   console.log(`Server is running on port ${process.env.Port} - build1`);
-  await connect()
 });
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+  // await pool.connect()
+  const item = await pool.query(`select * from users;`);
+  res.send(item.rows);
+  // await pool.end()
+});
 
-  res.send(pool.options);
+app.post("/", async (req, res) => {
+  await pool.query(
+    `INSERT INTO users (name, email, password) VALUES ('John Doe', 'john@gmail.com', '1234');`
+  );
+  const item2 = await pool.query(`select * from users;`);
+  res.send(item2.rows);
+  // await pool.end()
+});
+
+app.put("/", async (req, res) => {
+  // await pool.connect()
+  const item = await pool.query(`SELECT EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE schemaname = 'public'
+    AND tablename = 'users'
+  );
+  `);
+  res.send(item.rows);
+  // await pool.end()
 });
