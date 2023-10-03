@@ -7,9 +7,9 @@ app.use(express.json());
 app.listen(process.env.Port, async () => {
   // await connect()
   const client = await pool.connect()
-  const result = await pool.query(`select * from users;`);
-  console.log(result.rows)
-  client.release()
+  // const result = await pool.query(`select * from users;`);
+  // console.log(result.rows)
+  // client.release()
 
   console.log(`Server is running on port ${process.env.Port} - build1`);
 });
@@ -39,6 +39,7 @@ app.put("/", async (req, res) => {
     AND tablename = 'users'
   );
   `);
+  // item = await pool.query(`select now();`)
   res.send(item.rows);
   // await pool.end()
 });
