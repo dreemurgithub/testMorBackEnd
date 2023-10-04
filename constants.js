@@ -8,6 +8,8 @@ const URL_LIST = {
     sqlQueryTodo: '/sql/todo',
     sqlQueryConnect: '/sql/connect',
     sqlQueryComment: '/sql/comment',
+    login:'/login',
+    logout: '/logout'
 }
 
 module.exports = URL_LIST

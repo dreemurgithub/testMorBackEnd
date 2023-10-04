@@ -1,65 +1,104 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const app = express();
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+app.use(cors({}));
+app.use(express.json());
+
+const authMiddleware = require('./controller/authMiddleware')
+const authRoute = require('./controller/auth/index')
 const { pool } = require("./models/postgresJs/index");
 const connectRoute = require("./controller/connect/index");
 const commentRoute = require("./controller/comment/index");
 const todoRoute = require("./controller/todo/index");
 const usertRoute = require("./controller/user/index");
-app.use(express.json());
+
+const expressSession = require("express-session");
+
+app.use(
+  expressSession({
+    store: new (require("connect-pg-simple")(expressSession))({
+      pool: pool, // Connection pool
+      tableName: "user_sessions", // Use another table-name than the default "session" one
+    }),
+    secret: "somesecret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      secure:  process.env.ENVIROMENT === "DEV" ? "auto" :true,
+      sameSite: process.env.ENVIROMENT === "DEV"? "lax" : "none",
+    }, // 30 days
+    // for browser security requirement on https
+  })
+);
+app.use(authMiddleware)
+app.use(authRoute)
 app.use(connectRoute);
 app.use(commentRoute);
 app.use(todoRoute);
 app.use(usertRoute);
 app.listen(process.env.Port, async () => {
   const client = await pool.connect();
-  const query = `SELECT EXISTS (
+  const queryUser = `SELECT EXISTS (
   SELECT 1
   FROM pg_tables
   WHERE schemaname = 'public'
   AND tablename = 'users'
   );`;
 
-  const tableExist = await pool.query(query);
-  const createTableQuery = `CREATE TABLE users (id SERIAL PRIMARY KEY,name VARCHAR(50), email VARCHAR(100),password VARCHAR(100));`;
-  if (!tableExist.rows[0].exists) await pool.query(createTableQuery);
+  const userExist = await pool.query(queryUser);
+
+  const createTableQuery = `CREATE TABLE users (id SERIAL PRIMARY KEY,username VARCHAR(50), email VARCHAR(100),password VARCHAR(100),created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP);`;
+  if (!userExist.rows[0].exists) await pool.query(createTableQuery);
+
+  const querySession = `SELECT EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE tablename = 'user_sessions'
+    );`;
+
+  const sessionExist = await pool.query(querySession);
+
+  if (!sessionExist.rows[0].exists) {
+    const createSessionTable = `CREATE TABLE user_sessions (sid varchar NOT NULL COLLATE "default",
+     sess json NOT NULL, expire timestamp(6) NOT NULL );`;
+    const addCCONSTRAINT = `ALTER TABLE user_sessions ADD CONSTRAINT user_sessions_sid_unique UNIQUE (sid);`;
+    //  error: there is no unique or exclusion constraint matching the ON CONFLICT specification => addCONSTRAINT fix this
+    await pool.query(createSessionTable);
+    await pool.query(addCCONSTRAINT);
+  }
+
   client.release();
 
   console.log(`Server is running on port ${process.env.Port} - build1`);
 });
 
 app.get("/", async (req, res) => {
-  const client = await pool.connect();
-  const item = await pool.query(`select * from users;`);
-  res.send(item.rows);
-  client.release();
+  req.session.user = true;
+  console.log(req.session.data);
+  res.send(req.session);
+});
+
+app.get("/a", async (req, res) => {
+  res.send(req.session);
 });
 
 app.post("/", async (req, res) => {
-  const client = await pool.connect();
-
-  await pool.query(
-    `INSERT INTO users (name, email, password) VALUES ('John Doe', 'john@gmail.com', '1234');`
-  );
-  const item2 = await pool.query(`select * from users;`);
-  res.send(item2.rows);
-  // await pool.end()
-  client.release();
+  req.session.user = true;
+  console.log(req.session.data);
+  res.send(req.session);
 });
 
 app.put("/", async (req, res) => {
-  // await pool.connect()
-  const client = await pool.connect();
+  res.send(req.session);
+});
 
-  const item = await pool.query(`SELECT EXISTS (
-    SELECT 1
-    FROM pg_tables
-    WHERE schemaname = 'public'
-    AND tablename = 'users'
-  );
-  `);
-  // item = await pool.query(`select now();`)
-  res.send(item.rows);
-  // await pool.end()
-  client.release();
+app.delete("/", async (req, res) => {
+  console.log(req.session);
+  req.session.destroy();
+  res.send("session here");
 });
