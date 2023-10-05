@@ -3,7 +3,6 @@ const URL_LIST = require("../../constants");
 const {
   readUser,
   readAllUser,
-  addUser,
   updateUser,
   deleteUser
 } = require("../../models/postgresJs/index");

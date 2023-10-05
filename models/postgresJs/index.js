@@ -18,7 +18,7 @@ const readAllUser = async () => {
   const client = await pool.connect();
   const user = await pool.query(`select * from users;`);
   client.release();
-  return user;
+  return user.rows;
 };
 
 const readUser = async (id) => {

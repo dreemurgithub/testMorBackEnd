@@ -14,6 +14,8 @@ const authMiddleware = async (req, res, next) => {
   }
   const { commentid, todo_id, id } = req.body;
 
+
+  // put and delete only allow if user is in todo/is comment's author
   if (commentid && (req.method === "PUT" || req.method === "DELETE")) {
     const checkListObj = await checkAuthSession(userId, "comment");
     const checkList = [];
