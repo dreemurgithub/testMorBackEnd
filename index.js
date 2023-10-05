@@ -55,7 +55,7 @@ app.listen(process.env.Port, async () => {
 
   const createTableQuery = `CREATE TABLE users (id SERIAL PRIMARY KEY,username VARCHAR(50), email VARCHAR(100),password VARCHAR(100),created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP);`;
   if (!userExist.rows[0].exists) await pool.query(createTableQuery);
-// todo exist?
+  // todo exist?
   const queryTodoExist = `SELECT EXISTS (
     SELECT 1
     FROM pg_tables
@@ -89,6 +89,46 @@ app.listen(process.env.Port, async () => {
     //  error: there is no unique or exclusion constraint matching the ON CONFLICT specification => addCONSTRAINT fix this
     await pool.query(createSessionTable);
     await pool.query(addCCONSTRAINT);
+  }
+
+  // users_todo exist?
+
+  const queryConnect = `SELECT EXISTS (
+    SELECT 1
+    FROM pg_tables
+    WHERE tablename = 'users_todo'
+    );`;
+
+  const connectExist = await pool.query(queryConnect);
+
+  if (!connectExist.rows[0].exists) {
+    const createUser_todoTable = `CREATE TABLE users_todo (
+  user_id INTEGER,
+  todo_id INTEGER,
+  PRIMARY KEY (user_id, todo_id)
+);`;
+    await pool.query(createUser_todoTable);
+  }
+
+  const queryComment = `SELECT EXISTS (
+  SELECT 1
+  FROM pg_tables
+  WHERE tablename = 'comment'
+  );`;
+
+  const commentExist = await pool.query(queryComment);
+
+  if (!commentExist.rows[0].exists) {
+    const createCommentTable = `CREATE TABLE comment (
+      CommentId SERIAL PRIMARY KEY,
+      title TEXT,
+      body TEXT,
+      todo_id INTEGER,
+      author INTEGER,
+      created_at TIMESTAMP,
+      updated_at TIMESTAMP
+    );`;
+    await pool.query(createCommentTable);
   }
 
   client.release();

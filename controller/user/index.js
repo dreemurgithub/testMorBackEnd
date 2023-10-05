@@ -19,13 +19,12 @@ usertRoute.get(`${URL_LIST.sqlQueryUser}/:id`, async (req, res) => {
   res.send(user.rows[0]);
 });
 
-usertRoute.put(`${URL_LIST.sqlQueryUser}/:id`, async (req, res) => {
-  const id = req.params.id;
+usertRoute.put(URL_LIST.sqlQueryUser, async (req, res) => {
   const userInfor = {
     email: req.body.email,
     username: req.body.username,
     password: req.body.password,
-    id: id,
+    id: req.body.id,
   };
   if (
     !userInfor.email ||
@@ -47,19 +46,6 @@ usertRoute.delete(`${URL_LIST.sqlQueryUser}/:id`, async (req, res) => {
   res.send(message);
 });
 
-usertRoute.post(URL_LIST.sqlQueryUser, async (req, res) => {
-  const userInfor = {
-    email: req.body.email,
-    username: req.body.username,
-    password: req.body.password,
-  };
-  if (!userInfor.email || !userInfor.username || !userInfor.password) {
-    res.status(400).send({ message: "Bad Request" });
-    return;
-  }
-  const user = await addUser(userInfor);
-  res.send(user);
-});
 
 // End SQL route
 

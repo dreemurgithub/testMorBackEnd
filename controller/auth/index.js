@@ -22,4 +22,19 @@ authRoute.delete(URL_LIST.logout, async (req, res) => {
   res.send({ message: "Logout" });
 });
 
+
+authRoute.post(URL_LIST.register, async (req, res) => {
+  const userInfor = {
+    email: req.body.email,
+    username: req.body.username,
+    password: req.body.password,
+  };
+  if (!userInfor.email || !userInfor.username || !userInfor.password) {
+    res.status(400).send({ message: "Bad Request" });
+    return;
+  }
+  const user = await addUser(userInfor);
+  res.send(user);
+});
+
 module.exports = authRoute;
