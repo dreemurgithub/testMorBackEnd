@@ -4,7 +4,8 @@ const {
   addComment,
   readCommentTodo,
   updateComment,
-  readCommentUser
+  readCommentUser,
+  deleteComment,
 } = require("../../models/postgresJs");
 
 commentRoute.get(URL_LIST.sqlQueryComment, async (req, res) => {
@@ -20,22 +21,27 @@ commentRoute.get(`${URL_LIST.sqlQueryComment}/:todo_id`, async (req, res) => {
 commentRoute.post(URL_LIST.sqlQueryComment, async (req, res) => {
   const { title, body, todo_id } = req.body;
   const userId = req.session.userId;
-  if (!title || !body || !todo_id)
+  if (!title || !body || !todo_id || !userId) {
     res.send(400).send({ message: "Bad Request" });
+    return
+  }
   const message = await addComment({ todo_id, userId, body, title });
   res.send(message);
 });
 
-// commentRoute.put(`${URL_LIST.sqlQueryComment}/:id`, async (req, res) => {
-//   const id = req.params.id;
-//   const { title, body,id } = req.body;
-//   const newComment = await updateComment({ title, body, id });
-//   res.send(newComment);
-// });
-
-commentRoute.delete(`${URL_LIST.sqlQueryComment}/:id`, async (req, res) => {
-  res.send(`hello ${URL_LIST.sqlQueryComment}`);
+commentRoute.put(URL_LIST.sqlQueryComment, async (req, res) => {
+  const { title, body,commentid } = req.body;
+  const userId =req.session.userId
+  const newComment = await updateComment({ title, body, commentid ,userId });
+  res.send(newComment);
 });
+
+commentRoute.put(`${URL_LIST.sqlQueryComment}/delete`, async (req, res) => {
+    const { commentid } = req.body;
+    const userId =req.session.userId
+    const message = await deleteComment(commentid);
+    res.send(message);
+  });
 
 // end sql
 commentRoute.get(URL_LIST.typeOrmComment, async (req, res) => {
@@ -47,10 +53,6 @@ commentRoute.post(URL_LIST.typeOrmComment, async (req, res) => {
 });
 
 commentRoute.put(URL_LIST.typeOrmComment, async (req, res) => {
-  res.send(`hello ${URL_LIST.typeOrmComment}`);
-});
-
-commentRoute.delete(URL_LIST.typeOrmComment, async (req, res) => {
   res.send(`hello ${URL_LIST.typeOrmComment}`);
 });
 

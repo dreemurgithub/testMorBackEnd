@@ -12,13 +12,13 @@ const authMiddleware = async (req, res, next) => {
     next();
     return;
   }
-  const { CommentId, todo_id, id } = req.body;
+  const { commentid, todo_id, id } = req.body;
 
-  if (CommentId && (req.method === "PUT" || req.method === "DELETE")) {
+  if (commentid && (req.method === "PUT" || req.method === "DELETE")) {
     const checkListObj = await checkAuthSession(userId, "comment");
     const checkList = [];
-    checkListObj.forEach((el) => checkList.push(el.CommentId));
-    if (checkList.includes(CommentId)) {
+    checkListObj.forEach((el) => checkList.push(el.commentid));
+    if (checkList.includes(commentid)) {
       next();
       return;
     }
@@ -64,7 +64,7 @@ const checkAuthSession = async (userId, table) => {
   }
   if (table === "comment") {
     const userCheck = await pool.query(
-      `select id from comment where author = $1`,
+      `select commentId from comment where author = $1`,
       [userId]
     );
     client.release();

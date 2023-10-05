@@ -158,42 +158,27 @@ const addComment = async ({todo_id, userId,title,body,}) => {
 
 };
 
-const updateComment = async ({CommentId,title,body,userId}) => {
+const updateComment = async ({commentid,title,body,userId}) => {
   const client = await pool.connect();
-  const query = `UPDATE comment SET title = $1, body = $2, updated_at = $3 WHERE CommentId = $4 and author= $5`;
+  const query = `UPDATE comment SET title = $1, body = $2, updated_at = $3 WHERE commentid = $4 and author= $5`;
   const updated_at = new Date()
-  await pool.query(query,[title,body,updated_at,CommentId,userId])
+  await pool.query(query,[title,body,updated_at,commentid,userId])
   client.release();
   return {title,body,updated_at};
 };
 
-const deleteComment = async (id) => {
+const deleteComment = async (commentid) => {
   const client = await pool.connect();
-  const comment = 1;
-  client.release();
-  return comment;
+  try {
+    await pool.query(`DELETE FROM comment WHERE commentid = $1;`,[commentid])
+    client.release();
+    return {message: "Delete successfully"}
+  } catch {
+    client.release()
+    return {message: "Bad request"}
+  }
 };
 
-const readConnectTodo = async (id) => {
-  const client = await pool.connect();
-  const List = 1;
-  client.release();
-  return List;
-};
-
-const readConnectUser = async (id) => {
-  const client = await pool.connect();
-  const List = 1;
-  client.release();
-  return List;
-};
-
-const deleteConnect = async (id) => {
-  const client = await pool.connect();
-  const List = 1;
-  client.release();
-  return List;
-};
 
 module.exports = {
   pool,
@@ -201,12 +186,9 @@ module.exports = {
   addTodo,
   addUser,
   deleteComment,
-  deleteConnect,
   deleteTodo,
   deleteUser,
   readCommentTodo,
-  readConnectTodo,
-  readConnectUser,
   readTodoFromUser,
   readUser,
   updateComment,

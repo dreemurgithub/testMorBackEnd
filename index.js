@@ -11,7 +11,6 @@ app.use(express.json());
 const authMiddleware = require("./controller/authMiddleware");
 const authRoute = require("./controller/auth/index");
 const { pool } = require("./models/postgresJs/index");
-const connectRoute = require("./controller/connect/index");
 const commentRoute = require("./controller/comment/index");
 const todoRoute = require("./controller/todo/index");
 const usertRoute = require("./controller/user/index");
@@ -37,7 +36,6 @@ app.use(
 );
 app.use(authMiddleware);
 app.use(authRoute);
-app.use(connectRoute);
 app.use(commentRoute);
 app.use(todoRoute);
 app.use(usertRoute);
@@ -120,7 +118,7 @@ app.listen(process.env.Port, async () => {
 
   if (!commentExist.rows[0].exists) {
     const createCommentTable = `CREATE TABLE comment (
-      CommentId SERIAL PRIMARY KEY,
+      commentId SERIAL PRIMARY KEY,
       title TEXT,
       body TEXT,
       todo_id INTEGER,
