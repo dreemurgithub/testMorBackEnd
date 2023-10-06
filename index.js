@@ -8,12 +8,15 @@ app.use(cookieParser());
 app.use(cors({}));
 app.use(express.json());
 
+const {dataSource} = require('./models/typeorm/index')
+
 const authMiddleware = require("./controller/authMiddleware");
 const authRoute = require("./controller/auth/index");
 const { pool } = require("./models/postgresJs/index");
 const commentRoute = require("./controller/comment/index");
 const todoRoute = require("./controller/todo/index");
 const usertRoute = require("./controller/user/index");
+
 
 const expressSession = require("express-session");
 
@@ -130,6 +133,8 @@ app.listen(process.env.Port, async () => {
   }
 
   client.release();
+
+  // dataSource.initialize()
 
   console.log(`Server is running on port ${process.env.Port} - build1`);
 });

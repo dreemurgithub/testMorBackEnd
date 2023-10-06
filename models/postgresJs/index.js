@@ -11,7 +11,9 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB, // Name of database to connect to
   user: process.env.POSTGRES_USER, // Username of database user
   password: process.env.POSTGRES_PASSWORD, // Password of database user
-  host: isLocalhost ? process.env.POSTGRES_LOCAL : process.env.POSTGRES_HOST,
+  host: isLocalhost ? process.env.POSTGRES_LOCAL : process.env.POSTGRES_HOST, // for docker-compose up db, to just run the database
+  // host:  process.env.POSTGRES_HOST, // this is for docker-compose up
+
 });
 
 const readAllUser = async () => {

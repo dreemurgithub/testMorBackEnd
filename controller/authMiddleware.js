@@ -5,7 +5,7 @@ const urlRoutes = urlKeys.map((el) => URL_LIST[el]);
 const authMiddleware = async (req, res, next) => {
   // allow login and logout and create new user
   const autoPass =
-    req.url === "/login" || req.url === "/logout" || req.url === "/register";
+    req.url === URL_LIST.login || req.url === URL_LIST.logout || req.url === URL_LIST.register || req.url === `${URL_LIST.register}/orm`;
   const userId = req.session.userId;
   // allow POST and GET for authenticated user, new todo/comment are base on the userId on session
   if (autoPass || ((req.method === "GET" || req.method === "POST") && userId)) {
