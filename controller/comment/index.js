@@ -6,7 +6,7 @@ const {
   updateComment,
   readCommentUser,
   deleteComment,
-} = require("../../models/postgresJs");
+} = require("../../models/postgresJs/index");
 
 commentRoute.get(URL_LIST.sqlQueryComment, async (req, res) => {
   const userId = req.session.userId;
@@ -31,8 +31,8 @@ commentRoute.post(URL_LIST.sqlQueryComment, async (req, res) => {
 
 commentRoute.put(URL_LIST.sqlQueryComment, async (req, res) => {
   const { title, body,commentid } = req.body;
-  const userId =req.session.userId
-  const newComment = await updateComment({ title, body, commentid ,userId });
+  // const userId =req.session.userId
+  const newComment = await updateComment({ title, body, commentid });
   res.send(newComment);
 });
 

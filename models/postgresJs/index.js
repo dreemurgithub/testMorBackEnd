@@ -23,11 +23,11 @@ const readAllUser = async () => {
   return user.rows;
 };
 
-const readUser = async (id) => {
+const signinUser = async ({email, password}) => {
   const client = await pool.connect();
-  const user = await pool.query(`select * from users where id=${id};`);
+  const user = await pool.query(`select * from users where email= $1 and password= $2;`,[email,password]);
   client.release();
-  return user;
+  return user.rows;
 };
 
 const addUser = async ({ email, username, password }) => {
@@ -37,7 +37,7 @@ const addUser = async ({ email, username, password }) => {
   await pool.query(query, values);
   const user = { email: email, username: username };
   client.release();
-  return user;
+  return user.rows;
 };
 
 const updateUser = async ({ id, email, username, password }) => {
@@ -48,15 +48,28 @@ const updateUser = async ({ id, email, username, password }) => {
   const user = { email: email, username: username };
 
   client.release();
-  return user;
+  return user.rows;
 };
 
 const deleteUser = async (id) => {
   const client = await pool.connect();
-  const query = `DELETE FROM Users WHERE id = $1`;
-  const values = [id];
+
+  const queryUser = `DELETE FROM Users WHERE id = $1`;
+  const queryLink = `DELETE FROM Users_todo WHERE user_id = $1`
+  const queryTodo = `DELETE FROM todo WHERE todo_id = $1`
+  const queryComment = `DELETE FROM comment WHERE author = $1`
   try {
-    await pool.query(query, values);
+    await pool.query(queryComment, [id]); // delete comment
+
+    // delete all todo
+    const listTodoObj = await pool.query(queryUser, [id])
+    const listtodo = []
+    for(let i=0;i>listTodoObj.rowCount;i++) listtodo.push(listTodoObj.rows[i].todo_id)
+    listtodo.forEach(async(todo_id)=>await pool.query(queryTodo,[todo_id]) )
+
+    await pool.query(queryLink, [id]); // delete users_todo
+
+    await pool.query(queryUser, [id]); // delete user
     const message = { message: "successful delete" };
     client.release();
     return message;
@@ -115,6 +128,8 @@ const updateTodo = async ({todo_id,task,status,userId}) => {
 const deleteTodo = async (todo_id,userId) => {
   const client = await pool.connect();
   try {
+    pool.query(`DELETE FROM users_todo WHERE todo_id = $1`,[todo_id])
+    pool.query(`DELETE FROM comment WHERE todo_id = $1`,[todo_id])
     pool.query(`DELETE FROM todo WHERE todo_id = $1`,[todo_id])
     const message = {message: "Delete successfully"};
     pool.query(`DELETE FROM users_todo WHERE todo_id = $1 and user_id = $2`,[todo_id,userId])
@@ -160,11 +175,13 @@ const addComment = async ({todo_id, userId,title,body,}) => {
 
 };
 
-const updateComment = async ({commentid,title,body,userId}) => {
+const updateComment = async ({commentid,title,body}) => {
+  // block unauthorized in middleware
   const client = await pool.connect();
-  const query = `UPDATE comment SET title = $1, body = $2, updated_at = $3 WHERE commentid = $4 and author= $5`;
+  const query = `UPDATE comment SET title = $1, body = $2, updated_at = $3 WHERE commentid = $4`;
   const updated_at = new Date()
-  await pool.query(query,[title,body,updated_at,commentid,userId])
+  const result = await pool.query(query,[title,body,updated_at,commentid])
+
   client.release();
   return {title,body,updated_at};
 };
@@ -192,7 +209,7 @@ module.exports = {
   deleteUser,
   readCommentTodo,
   readTodoFromUser,
-  readUser,
+  signinUser,
   updateComment,
   updateTodo,
   updateUser,

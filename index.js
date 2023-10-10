@@ -14,7 +14,7 @@ const authRoute = require("./controller/auth/index");
 const { pool } = require("./models/postgresJs/index");
 const commentRoute = require("./controller/comment/index");
 const todoRoute = require("./controller/todo/index");
-const usertRoute = require("./controller/user/index");
+const userRoute = require("./controller/user/index");
 
 
 const expressSession = require("express-session");
@@ -40,7 +40,7 @@ app.use(authMiddleware);
 app.use(authRoute);
 app.use(commentRoute);
 app.use(todoRoute);
-app.use(usertRoute);
+app.use(userRoute);
 app.listen(process.env.Port, async () => {
   const client = await pool.connect();
   // user exist?
@@ -132,8 +132,6 @@ app.listen(process.env.Port, async () => {
   }
 
   client.release();
-
-  // dataSource.initialize()
 
   console.log(`Server is running on port ${process.env.Port} - build1`);
 });

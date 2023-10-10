@@ -40,9 +40,12 @@ usertRoute.put(URL_LIST.sqlQueryUser, async (req, res) => {
 });
 
 usertRoute.delete(`${URL_LIST.sqlQueryUser}/:id`, async (req, res) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
   const message = await deleteUser(id);
+  req.session.destroy()
+  res.clearCookie("connect.sid")
   res.send(message);
+
 });
 
 
