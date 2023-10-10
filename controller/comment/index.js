@@ -43,17 +43,4 @@ commentRoute.put(`${URL_LIST.sqlQueryComment}/delete`, async (req, res) => {
     res.send(message);
   });
 
-// end sql
-commentRoute.get(URL_LIST.typeOrmComment, async (req, res) => {
-  res.send(`hello ${URL_LIST.typeOrmComment}`);
-});
-
-commentRoute.post(URL_LIST.typeOrmComment, async (req, res) => {
-  res.send(`hello ${URL_LIST.typeOrmComment}`);
-});
-
-commentRoute.put(URL_LIST.typeOrmComment, async (req, res) => {
-  res.send(`hello ${URL_LIST.typeOrmComment}`);
-});
-
 module.exports = commentRoute;

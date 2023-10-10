@@ -8,7 +8,6 @@ app.use(cookieParser());
 app.use(cors({}));
 app.use(express.json());
 
-const {dataSource} = require('./models/typeorm/index')
 
 const authMiddleware = require("./controller/authMiddleware");
 const authRoute = require("./controller/auth/index");

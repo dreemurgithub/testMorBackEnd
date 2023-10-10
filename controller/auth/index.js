@@ -2,7 +2,6 @@ const URL_LIST = require("../../constants");
 const authRoute = require("express")();
 const { pool } = require("../../models/postgresJs/index");
 
-const { queryToDatabase, addUserOrm } = require("../../models/typeorm/index");
 
 authRoute.post(URL_LIST.login, async (req, res) => {
   const client = await pool.connect();
@@ -35,22 +34,6 @@ authRoute.post(URL_LIST.register, async (req, res) => {
   }
   const user = await addUser(userInfor);
   res.send(user);
-});
-
-// end sql route
-
-authRoute.post(`${URL_LIST.register}/orm`, async (req, res) => {
-  const userInfor = {
-    email: req.body.email,
-    username: req.body.username,
-    password: req.body.password,
-  };
-  if (!userInfor.email || !userInfor.username || !userInfor.password) {
-    res.status(400).send({ message: "Bad Request" });
-    return;
-  }
-  addUserOrm(userInfor)
-  res.send(userInfor);
 });
 
 module.exports = authRoute;

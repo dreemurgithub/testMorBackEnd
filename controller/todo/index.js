@@ -41,10 +41,4 @@ todoRoute.put(`${URL_LIST.sqlQueryTodo}/delete`,async (req,res)=>{
     res.send(message)
 });
 
-// end sql query
-
-todoRoute.get(URL_LIST.typeOrmTodo, async (req, res) => {
-  res.send(`hello ${URL_LIST.typeOrmTodo}`);
-});
-
 module.exports = todoRoute;
